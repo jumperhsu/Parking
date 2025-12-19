@@ -1,0 +1,2077 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>停車位置記錄</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 15px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        /* 最近停車位置區塊 */
+        .latest-spot {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .latest-spot::before {
+            content: '📍';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 60px;
+            opacity: 0.2;
+        }
+
+        .latest-spot-title {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .latest-spot-number {
+            font-size: 32px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .latest-spot-info {
+            font-size: 13px;
+            opacity: 0.85;
+            line-height: 1.5;
+        }
+
+        .latest-spot-empty {
+            text-align: center;
+            padding: 20px;
+            opacity: 0.7;
+        }
+
+        .latest-spot-empty-icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px 0;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-info {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .btn-group button {
+            flex: 1;
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .spot-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            background: #f0f4ff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .unmarked-badge {
+            font-size: 10px;
+            background: #ff9800;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: normal;
+        }
+
+        .card-details {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .card-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .card-actions button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            margin: 20px auto;
+            padding: 20px;
+            max-width: 500px;
+            position: relative;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-select, .form-textarea, .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #f8f9fa;
+        }
+
+        .form-select:focus, .form-textarea:focus, .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .number-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .number-input input {
+            flex: 1;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .number-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            background: #667eea;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+            background: white;
+            border-radius: 15px;
+            margin-top: 15px;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #f0f0f0;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .detail-view {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .detail-value {
+            color: #333;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* 統計頁面樣式 */
+        .stats-container {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stats-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .stat-section {
+            margin-bottom: 20px;
+        }
+
+        .stat-section h3 {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .stat-item-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-item-count {
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .rank-badge {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            border-radius: 50%;
+            background: #ffd700;
+            color: #333;
+            font-weight: bold;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+
+        .rank-1 { background: #ffd700; }
+        .rank-2 { background: #c0c0c0; }
+        .rank-3 { background: #cd7f32; color: white; }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .history-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #555;
+            margin: 15px 0 10px 0;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        /* 新增：點擊輸入框時的提示文字 */
+        .input-hint {
+            font-size: 12px;
+            color: #667eea;
+            margin-top: 4px;
+            font-weight: bold;
+        }
+
+        /* 未標註號碼的特殊樣式 */
+        .unmarked-spot {
+            color: #ff9800;
+            font-weight: bold;
+        }
+
+        .unmarked-hint {
+            font-size: 11px;
+            color: #ff9800;
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 5px;
+            font-weight: normal;
+        }
+
+        /* 新增：清除資料的警告樣式 */
+        .clear-warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            color: #856404;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .clear-warning strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .clear-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .clear-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .confirm-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e74c3c;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            background: #ffebee;
+        }
+
+        .confirm-input:focus {
+            outline: none;
+            border-color: #c0392b;
+            background: white;
+        }
+
+        .btn-danger-outline {
+            background: white;
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+        }
+
+        .btn-danger-outline:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-group-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .btn-group-vertical button {
+            width: 100%;
+        }
+
+        /* 新增：日期選擇和統計資訊樣式 */
+        .date-selector {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 2px solid #e0e0e0;
+        }
+
+        .date-selector:focus-within {
+            border-color: #667eea;
+            background: white;
+        }
+
+        .date-label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .date-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .date-input-group input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .stats-summary {
+            background: #e3f2fd;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #1976d2;
+            border: 1px solid #bbdefb;
+        }
+
+        .stats-summary strong {
+            color: #0d47a1;
+        }
+
+        .stats-summary .highlight {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .stats-summary .safe {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .stats-summary .warning {
+            color: #ff9800;
+            font-weight: bold;
+        }
+
+        .info-box {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 13px;
+            color: #2c3e50;
+            border-radius: 4px;
+        }
+
+        .info-box-icon {
+            font-weight: bold;
+            color: #3498db;
+            margin-right: 5px;
+        }
+
+        /* 新增：歸檔統計樣式 */
+        .archive-section {
+            background: #f0f8ff;
+            border: 2px solid #667eea;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .archive-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .archive-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+        }
+
+        .archive-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .archive-option label {
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .archive-stats-info {
+            background: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #2e7d32;
+        }
+
+        .archive-stats-info strong {
+            color: #1b5e20;
+        }
+
+        /* 歸檔詳細查看模態框 */
+        .archive-detail-content {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .archive-detail-section {
+            margin-bottom: 15px;
+        }
+
+        .archive-detail-section h4 {
+            font-size: 14px;
+            color: #667eea;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 4px;
+        }
+
+        .archive-detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 13px;
+        }
+
+        .empty-archive {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* 新增：日期時間選擇器樣式 */
+        .datetime-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .datetime-input-group input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #f8f9fa;
+        }
+
+        .datetime-input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+
+        .datetime-input-group span {
+            font-size: 12px;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .current-time-hint {
+            font-size: 11px;
+            color: #27ae60;
+            margin-top: 4px;
+            font-weight: bold;
+        }
+
+        .manual-time-hint {
+            font-size: 11px;
+            color: #ff9800;
+            margin-top: 4px;
+            font-weight: bold;
+        }
+
+        .datetime-label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .datetime-label .required {
+            color: #e74c3c;
+        }
+
+        /* 新增：錯誤提示樣式 */
+        .error-message {
+            background: #fee;
+            border: 2px solid #fcc;
+            color: #c33;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 標題 -->
+        <div class="header">
+            <h1>🅿️ 停車位置記錄</h1>
+        </div>
+
+        <!-- 最近停車位置（固定顯示在上方） -->
+        <div id="latestSpot" class="latest-spot">
+            <div class="latest-spot-empty">
+                <div class="latest-spot-empty-icon">📍</div>
+                <div>尚未記錄停車位置</div>
+            </div>
+        </div>
+
+        <!-- 按鈕群組 -->
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="openAddModal()">➕ 新增</button>
+            <button class="btn btn-info" onclick="toggleStats()">📊 統計</button>
+        </div>
+
+        <!-- 統計面板 -->
+        <div id="statsPanel" class="stats-container">
+            <div class="stats-title">📊 停車統計分析</div>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('top')">🏆 熱門排行</button>
+                <button class="tab" onclick="switchTab('floor')">🏢 樓層統計</button>
+                <button class="tab" onclick="switchTab('zone')">區域統計</button>
+                <button class="tab" onclick="switchTab('archive')" id="archiveTabBtn">📦 歸檔統計</button>
+            </div>
+
+            <div id="topTab" class="tab-content active">
+                <div class="stat-section">
+                    <h3>最常用停車位 Top 10</h3>
+                    <div id="topSpotsList"></div>
+                </div>
+            </div>
+
+            <div id="floorTab" class="tab-content">
+                <div class="stat-section">
+                    <h3>各樓層使用次數</h3>
+                    <div id="floorStatsList"></div>
+                </div>
+            </div>
+
+            <div id="zoneTab" class="tab-content">
+                <div class="stat-section">
+                    <h3>各區域使用次數</h3>
+                    <div id="zoneStatsList"></div>
+                </div>
+            </div>
+
+            <div id="archiveTab" class="tab-content">
+                <div class="stat-section">
+                    <h3>歷史統計歸檔</h3>
+                    <div id="archivedList"></div>
+                </div>
+            </div>
+
+            <!-- 清除資料按鈕 -->
+            <div class="btn-group-vertical">
+                <button class="btn btn-secondary" onclick="toggleStats()">關閉統計</button>
+                <button class="btn btn-warning" onclick="openClearDataModal()">🗑️ 批次清除資料</button>
+            </div>
+        </div>
+
+        <!-- 歷史記錄標題 -->
+        <div class="history-title">📜 歷史記錄</div>
+
+        <!-- 停車記錄列表 -->
+        <div id="recordsList"></div>
+
+        <!-- 空狀態 -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">🅿️</div>
+            <div>目前沒有其他停車記錄</div>
+            <div style="font-size: 14px; margin-top: 8px;">點擊上方「新增」按鈕開始</div>
+        </div>
+
+        <!-- 新增模態框 -->
+        <div id="addModal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn" onclick="closeAddModal()">×</button>
+                <div class="modal-header">新增停車記錄</div>
+                
+                <!-- 樓層與區域 -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">樓層 *</label>
+                        <select id="floor" class="form-select">
+                            <option value="-1">B1 (地下一層)</option>
+                            <option value="1">1 樓</option>
+                            <option value="2">2 樓</option>
+                            <option value="3">3 樓</option>
+                            <option value="4">4 樓</option>
+                            <option value="5">5 樓</option>
+                            <option value="6">6 樓</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">區域 *</label>
+                        <select id="zone" class="form-select">
+                            <option value="A">A 區</option>
+                            <option value="B">B 區</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 車位號碼 -->
+                <div class="form-group">
+                    <label class="form-label">車位號碼 (00-99) *</label>
+                    <div class="number-input">
+                        <button class="number-btn" onclick="changeSpotNumber(-1)">-</button>
+                        <input type="number" id="spotNumber" class="form-select" value="00" min="0" max="99">
+                        <button class="number-btn" onclick="changeSpotNumber(1)">+</button>
+                    </div>
+                    <div class="input-hint">💡 00 表示未標註號碼，可直接輸入數字或使用 +/- 調整</div>
+                </div>
+
+                <!-- 日期時間選擇 -->
+                <div class="form-group">
+                    <label class="datetime-label">📅 停車日期 <span class="required">*</span></label>
+                    <input type="date" id="parkingDate" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="datetime-label">⏰ 停車時間 <span class="required">*</span></label>
+                    <input type="time" id="parkingTime" class="form-input">
+                    <div id="datetimeHint" class="current-time-hint">💡 將使用您選擇的日期和時間</div>
+                </div>
+
+                <!-- 備註 -->
+                <div class="form-group">
+                    <label class="form-label">備註 (選填)</label>
+                    <textarea id="notes" class="form-textarea" placeholder="例如：靠近電梯、柱子旁"></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="closeAddModal()">取消</button>
+                    <button class="btn btn-success" onclick="saveRecord()">儲存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 詳情模態框 -->
+        <div id="detailModal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn" onclick="closeDetailModal()">×</button>
+                <div class="modal-header">停車資訊詳細</div>
+                <div id="detailContent"></div>
+                <div class="modal-actions">
+                    <button class="btn btn-danger" onclick="deleteCurrentRecord()">刪除</button>
+                    <button class="btn btn-secondary" onclick="closeDetailModal()">關閉</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 清除資料模態框 -->
+        <div id="clearDataModal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn" onclick="closeClearDataModal()">×</button>
+                <div class="modal-header" style="color: #e74c3c;">⚠️ 批次清除資料</div>
+                
+                <div class="clear-warning">
+                    <strong>警告：此操作不可復原！</strong>
+                    您將清除指定日期之前的所有停車記錄。
+                </div>
+
+                <!-- 日期選擇區 -->
+                <div class="date-selector">
+                    <div class="date-label">📅 刪除指定日期之前的記錄</div>
+                    <div class="date-input-group">
+                        <input type="date" id="clearDate" class="form-input">
+                        <span style="font-size: 12px; color: #666;">前的所有記錄</span>
+                    </div>
+                    <div class="input-hint">💡 預設為一年前，您也可以選擇其他日期</div>
+                </div>
+
+                <!-- 統計資訊 -->
+                <div id="clearStatsInfo" class="stats-summary" style="display: none;">
+                    <div>📊 統計資訊：</div>
+                    <div id="statsContent"></div>
+                </div>
+
+                <!-- 歸檔統計選項 -->
+                <div class="archive-section">
+                    <div class="archive-title">📦 歸檔統計資料</div>
+                    <div class="archive-option">
+                        <input type="checkbox" id="archiveStats" checked>
+                        <label for="archiveStats">在清除前保留統計分析資料</label>
+                    </div>
+                    <div id="archiveStatsInfo" class="archive-stats-info" style="display: none;">
+                        將歸檔：<strong id="archiveStatsCount">0</strong> 筆統計資料
+                    </div>
+                    <div class="info-box" style="margin-top: 8px;">
+                        <span class="info-box-icon">ℹ️</span>
+                        歸檔資料包含：各車位使用次數、樓層統計、區域統計
+                    </div>
+                </div>
+
+                <!-- 說明框 -->
+                <div class="info-box">
+                    <span class="info-box-icon">ℹ️</span>
+                    系統將保留該日期之後的記錄（包含該日期）
+                </div>
+
+                <!-- 確認輸入 -->
+                <div class="form-group">
+                    <label class="form-label">確認清除</label>
+                    <input type="text" id="confirmText" class="confirm-input" placeholder="輸入 DELETE 確認">
+                    <div class="input-hint">請輸入 DELETE 以確認清除</div>
+                </div>
+
+                <div class="clear-actions">
+                    <button class="btn btn-secondary" onclick="closeClearDataModal()">取消</button>
+                    <button id="clearConfirmBtn" class="btn btn-danger" onclick="confirmClearData()" disabled>確認清除</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 歸檔詳細查看模態框 -->
+        <div id="archiveDetailModal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn" onclick="closeArchiveDetailModal()">×</button>
+                <div class="modal-header">歸檔統計詳細</div>
+                <div id="archiveDetailContent" class="archive-detail-content"></div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="closeArchiveDetailModal()">關閉</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 提示訊息 -->
+        <div id="toast" class="toast"></div>
+        
+        <!-- 錯誤訊息 -->
+        <div id="errorMessage" class="error-message"></div>
+    </div>
+
+    <script>
+        // 資料存儲
+        let records = JSON.parse(localStorage.getItem('parkingRecords')) || [];
+        let archivedStats = JSON.parse(localStorage.getItem('archivedStats')) || [];
+        let currentEditId = null;
+        let currentDetailId = null;
+        let currentArchiveDetail = null;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 確保所有記錄都有字串類型的 ID
+            records = records.map(record => ({
+                ...record,
+                id: record.id ? String(record.id) : Date.now().toString()
+            }));
+            saveToLocalStorage();
+            
+            renderRecords();
+            updateLatestSpot();
+            
+            // 設置車位號碼輸入框的焦點事件
+            const spotNumberInput = document.getElementById('spotNumber');
+            if (spotNumberInput) {
+                spotNumberInput.addEventListener('focus', function() {
+                    this.select();
+                });
+
+                // 處理車位號碼輸入，自動格式化為兩位數
+                spotNumberInput.addEventListener('input', function() {
+                    let value = this.value;
+                    value = value.replace(/\D/g, '');
+                    
+                    if (value === '') {
+                        this.value = '00';
+                        return;
+                    }
+                    
+                    let num = parseInt(value);
+                    if (num > 99) num = 99;
+                    if (num < 0) num = 0;
+                    
+                    if (value.length === 1 && num > 0) {
+                        this.value = '0' + num;
+                    } else {
+                        this.value = num.toString().padStart(2, '0');
+                    }
+                });
+            }
+
+            // 處理按鈕增減
+            window.changeSpotNumber = function(delta) {
+                const input = document.getElementById('spotNumber');
+                if (!input) return;
+                let value = parseInt(input.value) || 0;
+                value += delta;
+                if (value < 0) value = 0;
+                if (value > 99) value = 99;
+                input.value = value.toString().padStart(2, '0');
+            };
+
+            // 處理確認清除輸入框
+            const confirmInput = document.getElementById('confirmText');
+            if (confirmInput) {
+                confirmInput.addEventListener('input', function() {
+                    const confirmBtn = document.getElementById('clearConfirmBtn');
+                    if (this.value.toUpperCase() === 'DELETE') {
+                        confirmBtn.disabled = false;
+                    } else {
+                        confirmBtn.disabled = true;
+                    }
+                });
+            }
+
+            // 處理日期選擇器變更
+            const clearDateInput = document.getElementById('clearDate');
+            if (clearDateInput) {
+                clearDateInput.addEventListener('change', function() {
+                    updateClearStats();
+                });
+            }
+
+            // 處理歸檔選項變更
+            const archiveCheckbox = document.getElementById('archiveStats');
+            if (archiveCheckbox) {
+                archiveCheckbox.addEventListener('change', function() {
+                    updateArchiveStatsInfo();
+                });
+            }
+
+            // 處理新增模態框的日期時間輸入
+            const parkingDateInput = document.getElementById('parkingDate');
+            const parkingTimeInput = document.getElementById('parkingTime');
+            
+            if (parkingDateInput && parkingTimeInput) {
+                // 設置預設值：當前日期和時間
+                const now = new Date();
+                parkingDateInput.value = now.toISOString().split('T')[0];
+                parkingTimeInput.value = now.toTimeString().slice(0, 5);
+                
+                // 監聽變化更新提示
+                parkingDateInput.addEventListener('change', updateDateTimeHint);
+                parkingTimeInput.addEventListener('change', updateDateTimeHint);
+                
+                // 初始更新提示
+                updateDateTimeHint();
+            }
+        });
+
+        // 更新日期時間提示
+        function updateDateTimeHint() {
+            const dateInput = document.getElementById('parkingDate');
+            const timeInput = document.getElementById('parkingTime');
+            const hintDiv = document.getElementById('datetimeHint');
+            
+            if (!dateInput || !timeInput || !hintDiv) return;
+            
+            const dateStr = dateInput.value;
+            const timeStr = timeInput.value;
+            
+            if (!dateStr || !timeStr) {
+                hintDiv.textContent = '💡 請選擇日期和時間';
+                hintDiv.className = 'manual-time-hint';
+                return;
+            }
+            
+            // 檢查是否為今天
+            const today = new Date().toISOString().split('T')[0];
+            const selectedDateTime = new Date(dateStr + 'T' + timeStr);
+            const now = new Date();
+            
+            if (dateStr === today) {
+                hintDiv.textContent = '💡 將使用今天 ' + timeStr;
+                hintDiv.className = 'current-time-hint';
+            } else if (selectedDateTime > now) {
+                hintDiv.textContent = '⚠️ 注意：您選擇的是未來時間';
+                hintDiv.className = 'manual-time-hint';
+            } else {
+                hintDiv.textContent = '📅 歷史記錄：' + dateStr + ' ' + timeStr;
+                hintDiv.className = 'manual-time-hint';
+            }
+        }
+
+        // 更新最近停車位置顯示
+        function updateLatestSpot() {
+            const latestSpotDiv = document.getElementById('latestSpot');
+            
+            if (records.length === 0) {
+                latestSpotDiv.innerHTML = `
+                    <div class="latest-spot-empty">
+                        <div class="latest-spot-empty-icon">📍</div>
+                        <div>尚未記錄停車位置</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // 找出最近的一筆記錄
+            const latestRecord = records.reduce((latest, current) => {
+                return current.parkingTime > latest.parkingTime ? current : latest;
+            });
+
+            const spotDisplay = getFullSpotNumber(latestRecord);
+            const isUnmarked = latestRecord.spotNumber === 0;
+
+            latestSpotDiv.innerHTML = `
+                <div class="latest-spot-title">📍 最近停車位置</div>
+                <div class="latest-spot-number ${isUnmarked ? 'unmarked-spot' : ''}">
+                    ${spotDisplay}
+                    ${isUnmarked ? '<span class="unmarked-hint">未標註</span>' : ''}
+                </div>
+                <div class="latest-spot-info">
+                    <div>時間：${formatTime(latestRecord.parkingTime)}</div>
+                    ${latestRecord.notes ? `<div>備註：${latestRecord.notes}</div>` : ''}
+                </div>
+            `;
+        }
+
+        // 渲染停車記錄列表（排除最近一筆）
+        function renderRecords() {
+            const container = document.getElementById('recordsList');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (records.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            // 找出最近的一筆
+            const latestRecord = records.reduce((latest, current) => {
+                return current.parkingTime > latest.parkingTime ? current : latest;
+            });
+
+            // 過濾掉最近的一筆，並排序
+            const otherRecords = records
+                .filter(r => r.id !== latestRecord.id)
+                .sort((a, b) => b.parkingTime - a.parkingTime);
+
+            if (otherRecords.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            // 渲染歷史記錄
+            container.innerHTML = otherRecords.map(record => {
+                const isUnmarked = record.spotNumber === 0;
+                // 確保 ID 是字串類型
+                const recordId = String(record.id);
+                
+                return `
+                    <div class="card" data-id="${recordId}">
+                        <div class="card-header">
+                            <div class="spot-number">
+                                ${getFullSpotNumber(record)}
+                                ${isUnmarked ? '<span class="unmarked-badge">未標註</span>' : ''}
+                            </div>
+                            <div style="font-size: 12px; color: #999;">${formatTime(record.parkingTime)}</div>
+                        </div>
+                        <div class="card-details">
+                            <div>樓層：${getFloorDisplayName(record.floor)} | 區域：${record.zone}區</div>
+                            ${record.notes ? `<div style="margin-top: 4px; color: #999;">📝 ${record.notes}</div>` : ''}
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-primary" onclick="showDetail('${recordId}')">查看</button>
+                            <button class="btn btn-danger" onclick="deleteRecord('${recordId}')">刪除</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 開啟新增模態框
+        function openAddModal() {
+            currentEditId = null;
+            document.getElementById('floor').value = '-1';
+            document.getElementById('zone').value = 'A';
+            document.getElementById('spotNumber').value = '00';
+            document.getElementById('notes').value = '';
+            
+            // 設置日期時間預設值
+            const now = new Date();
+            document.getElementById('parkingDate').value = now.toISOString().split('T')[0];
+            document.getElementById('parkingTime').value = now.toTimeString().slice(0, 5);
+            
+            // 更新提示
+            updateDateTimeHint();
+            
+            document.getElementById('addModal').style.display = 'block';
+            
+            // 自動聚焦到車位號碼輸入框
+            setTimeout(() => {
+                document.getElementById('spotNumber').focus();
+            }, 100);
+        }
+
+        // 關閉新增模態框
+        function closeAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+        }
+
+        // 儲存記錄
+        function saveRecord() {
+            const floor = parseInt(document.getElementById('floor').value);
+            const zone = document.getElementById('zone').value;
+            const spotNumberStr = document.getElementById('spotNumber').value;
+            const spotNumber = parseInt(spotNumberStr);
+            const notes = document.getElementById('notes').value.trim();
+            
+            // 獲取日期和時間
+            const dateStr = document.getElementById('parkingDate').value;
+            const timeStr = document.getElementById('parkingTime').value;
+
+            // 驗證日期時間
+            if (!dateStr || !timeStr) {
+                showToast('請選擇停車日期和時間');
+                return;
+            }
+
+            // 合併日期和時間為時間戳
+            const parkingDateTime = new Date(dateStr + 'T' + timeStr).getTime();
+            const now = Date.now();
+
+            // 可選：阻止未來時間
+            if (parkingDateTime > now) {
+                if (!confirm('您選擇的是未來時間，確定要儲存嗎？')) {
+                    return;
+                }
+            }
+
+            const record = {
+                id: currentEditId || Date.now().toString(),
+                floor,
+                zone,
+                spotNumber: spotNumber, // 存儲數字，0 表示未標註
+                parkingTime: parkingDateTime,
+                notes
+            };
+
+            if (currentEditId) {
+                // 編輯模式
+                const index = records.findIndex(r => r.id === currentEditId);
+                if (index !== -1) {
+                    records[index] = record;
+                    showToast('停車記錄已更新');
+                } else {
+                    showToast('找不到該記錄');
+                    return;
+                }
+            } else {
+                // 新增模式
+                records.push(record);
+                showToast('停車記錄已新增');
+            }
+
+            saveToLocalStorage();
+            updateLatestSpot(); // 更新最近位置
+            renderRecords(); // 更新列表
+            closeAddModal();
+            
+            // 更新統計（如果統計面板是打開的）
+            if (document.getElementById('statsPanel').style.display === 'block') {
+                updateStats();
+            }
+        }
+
+        // 顯示詳細資訊
+        function showDetail(id) {
+            const record = records.find(r => String(r.id) === String(id));
+            if (!record) {
+                showError('找不到該記錄，ID: ' + id);
+                return;
+            }
+
+            currentDetailId = id;
+            const isUnmarked = record.spotNumber === 0;
+            
+            const content = `
+                <div class="detail-view">
+                    <div class="detail-row">
+                        <span class="detail-label">停車位置</span>
+                        <span class="detail-value ${isUnmarked ? 'unmarked-spot' : ''}">
+                            ${getFullSpotNumber(record)}
+                            ${isUnmarked ? '<span class="unmarked-hint">未標註</span>' : ''}
+                        </span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">樓層</span>
+                        <span class="detail-value">${getFloorDisplayName(record.floor)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">區域</span>
+                        <span class="detail-value">${record.zone} 區</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">車位號碼</span>
+                        <span class="detail-value ${isUnmarked ? 'unmarked-spot' : ''}">
+                            ${String(record.spotNumber).padStart(2, '0')}
+                            ${isUnmarked ? ' (未標註)' : ''}
+                        </span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">停車時間</span>
+                        <span class="detail-value">${formatTime(record.parkingTime)}</span>
+                    </div>
+                    ${record.notes ? `
+                    <div class="detail-row">
+                        <span class="detail-label">備註</span>
+                        <span class="detail-value">${record.notes}</span>
+                    </div>
+                    ` : ''}
+                </div>
+                <div style="margin-top: 15px; padding: 10px; background: #e8f4f8; border-radius: 8px; font-size: 14px;">
+                    💡 提示：${getDirectionHint(record)}
+                </div>
+            `;
+            
+            document.getElementById('detailContent').innerHTML = content;
+            document.getElementById('detailModal').style.display = 'block';
+        }
+
+        // 關閉詳細模態框
+        function closeDetailModal() {
+            document.getElementById('detailModal').style.display = 'none';
+            currentDetailId = null;
+        }
+
+        // 刪除記錄（從列表）
+        function deleteRecord(id) {
+            console.log('刪除記錄，ID:', id, '類型:', typeof id);
+            
+            // 驗證 ID
+            if (!id) {
+                showError('無效的 ID');
+                return;
+            }
+
+            // 確認對話框
+            const confirmResult = confirm('確定要刪除這筆停車記錄嗎？');
+            console.log('確認結果:', confirmResult);
+            
+            if (!confirmResult) {
+                console.log('用戶取消刪除');
+                return;
+            }
+
+            try {
+                // 找到要刪除的記錄
+                const recordToDelete = records.find(r => String(r.id) === String(id));
+                console.log('找到記錄:', recordToDelete);
+                
+                if (!recordToDelete) {
+                    showError('找不到要刪除的記錄');
+                    return;
+                }
+
+                // 刪除記錄
+                const initialLength = records.length;
+                records = records.filter(r => String(r.id) !== String(id));
+                console.log('刪除前:', initialLength, '刪除後:', records.length);
+                
+                if (records.length === initialLength) {
+                    showError('刪除失敗，記錄未找到');
+                    return;
+                }
+
+                // 保存並更新 UI
+                saveToLocalStorage();
+                updateLatestSpot();
+                renderRecords();
+                showToast('記錄已刪除');
+                
+                // 更新統計
+                if (document.getElementById('statsPanel').style.display === 'block') {
+                    updateStats();
+                }
+                
+                console.log('刪除成功');
+            } catch (error) {
+                console.error('刪除過程中發生錯誤:', error);
+                showError('刪除失敗: ' + error.message);
+            }
+        }
+
+        // 刪除當前詳細記錄
+        function deleteCurrentRecord() {
+            if (!currentDetailId) {
+                showError('沒有選擇要刪除的記錄');
+                return;
+            }
+
+            if (confirm('確定要刪除這筆停車記錄嗎？')) {
+                try {
+                    const initialLength = records.length;
+                    records = records.filter(r => String(r.id) !== String(currentDetailId));
+                    
+                    if (records.length === initialLength) {
+                        showError('刪除失敗，記錄未找到');
+                        return;
+                    }
+
+                    saveToLocalStorage();
+                    updateLatestSpot();
+                    renderRecords();
+                    closeDetailModal();
+                    showToast('記錄已刪除');
+                    
+                    if (document.getElementById('statsPanel').style.display === 'block') {
+                        updateStats();
+                    }
+                } catch (error) {
+                    console.error('刪除失敗:', error);
+                    showError('刪除失敗: ' + error.message);
+                }
+            }
+        }
+
+        // 清除資料功能
+        function openClearDataModal() {
+            if (records.length === 0) {
+                showToast('目前沒有任何資料可以清除');
+                return;
+            }
+            
+            // 設置預設日期：一年前
+            const oneYearAgo = new Date();
+            oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+            const defaultDate = oneYearAgo.toISOString().split('T')[0];
+            
+            document.getElementById('clearDate').value = defaultDate;
+            document.getElementById('confirmText').value = '';
+            document.getElementById('archiveStats').checked = true;
+            
+            const confirmBtn = document.getElementById('clearConfirmBtn');
+            if (confirmBtn) confirmBtn.disabled = true;
+            
+            // 顯示統計資訊
+            updateClearStats();
+            updateArchiveStatsInfo();
+            
+            document.getElementById('clearDataModal').style.display = 'block';
+            
+            // 自動聚焦到確認輸入框
+            setTimeout(() => {
+                document.getElementById('confirmText').focus();
+            }, 100);
+        }
+
+        function closeClearDataModal() {
+            document.getElementById('clearDataModal').style.display = 'none';
+        }
+
+        function updateClearStats() {
+            const dateStr = document.getElementById('clearDate').value;
+            if (!dateStr) return;
+            
+            const selectedDate = new Date(dateStr + 'T00:00:00').getTime();
+            const totalRecords = records.length;
+            
+            // 計算將被刪除的記錄數量
+            const toDeleteCount = records.filter(r => r.parkingTime < selectedDate).length;
+            const toKeepCount = totalRecords - toDeleteCount;
+            
+            const statsDiv = document.getElementById('clearStatsInfo');
+            const contentDiv = document.getElementById('statsContent');
+            
+            statsDiv.style.display = 'block';
+            
+            let html = `
+                <div style="margin-top: 8px;">
+                    <div>• 總記錄數：<strong>${totalRecords}</strong> 筆</div>
+                    <div>• 將被刪除：<strong class="highlight">${toDeleteCount}</strong> 筆</div>
+                    <div>• 將被保留：<strong class="safe">${toKeepCount}</strong> 筆</div>
+                </div>
+            `;
+            
+            if (toDeleteCount === 0) {
+                html += `<div style="margin-top: 8px; color: #ff9800; font-weight: bold;">⚠️ 沒有符合條件的記錄可刪除</div>`;
+            }
+            
+            contentDiv.innerHTML = html;
+        }
+
+        function updateArchiveStatsInfo() {
+            const archiveCheckbox = document.getElementById('archiveStats');
+            const archiveInfo = document.getElementById('archiveStatsInfo');
+            const dateStr = document.getElementById('clearDate').value;
+            
+            if (!archiveCheckbox || !archiveInfo || !dateStr) return;
+            
+            if (archiveCheckbox.checked) {
+                const selectedDate = new Date(dateStr + 'T00:00:00').getTime();
+                const toDeleteCount = records.filter(r => r.parkingTime < selectedDate).length;
+                
+                if (toDeleteCount > 0) {
+                    archiveInfo.style.display = 'block';
+                    document.getElementById('archiveStatsCount').textContent = toDeleteCount;
+                } else {
+                    archiveInfo.style.display = 'none';
+                }
+            } else {
+                archiveInfo.style.display = 'none';
+            }
+        }
+
+        function confirmClearData() {
+            const confirmText = document.getElementById('confirmText').value.toUpperCase();
+            const dateStr = document.getElementById('clearDate').value;
+            
+            if (confirmText !== 'DELETE') {
+                showToast('請輸入 DELETE 以確認清除');
+                return;
+            }
+
+            if (!dateStr) {
+                showToast('請選擇日期');
+                return;
+            }
+
+            const selectedDate = new Date(dateStr + 'T00:00:00').getTime();
+            const toDeleteRecords = records.filter(r => r.parkingTime < selectedDate);
+            const toDeleteCount = toDeleteRecords.length;
+            
+            if (toDeleteCount === 0) {
+                showToast('沒有符合條件的記錄可刪除');
+                return;
+            }
+
+            // 檢查是否需要歸檔統計
+            const archiveCheckbox = document.getElementById('archiveStats');
+            if (archiveCheckbox.checked) {
+                // 產生統計資料
+                const stats = generateStats(toDeleteRecords);
+                const archiveItem = {
+                    id: Date.now().toString(),
+                    archivedDate: Date.now(),
+                    deletedBeforeDate: selectedDate,
+                    deletedRecordsCount: toDeleteCount,
+                    stats: stats,
+                    totalRecords: toDeleteCount
+                };
+                
+                archivedStats.push(archiveItem);
+                localStorage.setItem('archivedStats', JSON.stringify(archivedStats));
+                showToast(`已歸檔 ${toDeleteCount} 筆統計資料`);
+            }
+
+            // 執行清除
+            records = records.filter(r => r.parkingTime >= selectedDate);
+            
+            // 保存到本地
+            saveToLocalStorage();
+            
+            // 關閉模態框
+            closeClearDataModal();
+            
+            // 更新 UI
+            updateLatestSpot();
+            renderRecords();
+            
+            // 如果統計面板是打開的，更新統計
+            if (document.getElementById('statsPanel').style.display === 'block') {
+                updateStats();
+                renderArchivedList(); // 更新歸檔列表
+            }
+            
+            // 顯示成功訊息
+            showToast(`已刪除 ${toDeleteCount} 筆記錄，保留 ${records.length} 筆`);
+        }
+
+        // 產生統計資料
+        function generateStats(recordsToArchive) {
+            // 計算各停車位使用次數
+            const spotCount = {};
+            recordsToArchive.forEach(record => {
+                const spot = getFullSpotNumber(record);
+                spotCount[spot] = (spotCount[spot] || 0) + 1;
+            });
+
+            // 計算各樓層使用次數
+            const floorCount = {};
+            recordsToArchive.forEach(record => {
+                const floor = getFloorDisplayName(record.floor);
+                floorCount[floor] = (floorCount[floor] || 0) + 1;
+            });
+
+            // 計算各區域使用次數
+            const zoneCount = {};
+            recordsToArchive.forEach(record => {
+                const zone = record.zone;
+                zoneCount[zone] = (zoneCount[zone] || 0) + 1;
+            });
+
+            // 排序並取 Top 10
+            const topSpots = Object.entries(spotCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+            return {
+                topSpots: topSpots,
+                floorCount: Object.entries(floorCount).sort((a, b) => b[1] - a[1]),
+                zoneCount: Object.entries(zoneCount).sort((a, b) => b[1] - a[1])
+            };
+        }
+
+        // 統計功能
+        function toggleStats() {
+            const panel = document.getElementById('statsPanel');
+            if (panel.style.display === 'none' || panel.style.display === '') {
+                panel.style.display = 'block';
+                updateStats();
+                renderArchivedList(); // 新增：顯示歸檔列表
+            } else {
+                panel.style.display = 'none';
+            }
+        }
+
+        function updateStats() {
+            if (records.length === 0) {
+                document.getElementById('topSpotsList').innerHTML = '<div style="text-align:center; color:#999; padding:20px;">暫無統計資料</div>';
+                document.getElementById('floorStatsList').innerHTML = '<div style="text-align:center; color:#999; padding:20px;">暫無統計資料</div>';
+                document.getElementById('zoneStatsList').innerHTML = '<div style="text-align:center; color:#999; padding:20px;">暫無統計資料</div>';
+                return;
+            }
+
+            // 計算各停車位使用次數
+            const spotCount = {};
+            records.forEach(record => {
+                const spot = getFullSpotNumber(record);
+                spotCount[spot] = (spotCount[spot] || 0) + 1;
+            });
+
+            // 計算各樓層使用次數
+            const floorCount = {};
+            records.forEach(record => {
+                const floor = getFloorDisplayName(record.floor);
+                floorCount[floor] = (floorCount[floor] || 0) + 1;
+            });
+
+            // 計算各區域使用次數
+            const zoneCount = {};
+            records.forEach(record => {
+                const zone = record.zone;
+                zoneCount[zone] = (zoneCount[zone] || 0) + 1;
+            });
+
+            // 排序並顯示 Top 10 停車位
+            const topSpots = Object.entries(spotCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+            const topSpotsHtml = topSpots.map((spot, index) => {
+                const rankClass = index < 3 ? `rank-${index + 1}` : '';
+                const rankBadge = index < 3 ? `<span class="rank-badge ${rankClass}">${index + 1}</span>` : `<span class="rank-badge" style="background:#ddd;">${index + 1}</span>`;
+                
+                // 檢查是否為未標註車位
+                const isUnmarked = spot[0].endsWith('00');
+                const spotName = isUnmarked ? 
+                    `<span class="unmarked-spot">${spot[0]} <span class="unmarked-hint">未標註</span></span>` : 
+                    spot[0];
+
+                return `
+                    <div class="stat-item">
+                        <div class="stat-item-name">${rankBadge}${spotName}</div>
+                        <div class="stat-item-count">${spot[1]} 次</div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('topSpotsList').innerHTML = topSpotsHtml;
+
+            // 顯示樓層統計
+            const floorStatsHtml = Object.entries(floorCount)
+                .sort((a, b) => b[1] - a[1])
+                .map(([floor, count]) => `
+                    <div class="stat-item">
+                        <div class="stat-item-name">${floor}</div>
+                        <div class="stat-item-count">${count} 次</div>
+                    </div>
+                `).join('');
+
+            document.getElementById('floorStatsList').innerHTML = floorStatsHtml;
+
+            // 顯示區域統計
+            const zoneStatsHtml = Object.entries(zoneCount)
+                .sort((a, b) => b[1] - a[1])
+                .map(([zone, count]) => `
+                    <div class="stat-item">
+                        <div class="stat-item-name">${zone} 區</div>
+                        <div class="stat-item-count">${count} 次</div>
+                    </div>
+                `).join('');
+
+            document.getElementById('zoneStatsList').innerHTML = zoneStatsHtml;
+        }
+
+        // 渲染歸檔列表
+        function renderArchivedList() {
+            const container = document.getElementById('archivedList');
+            
+            if (archivedStats.length === 0) {
+                container.innerHTML = '<div class="empty-archive">📦 目前沒有歷史歸檔資料</div>';
+                return;
+            }
+
+            // 排序：最新的在前面
+            const sortedArchives = archivedStats.sort((a, b) => b.archivedDate - a.archivedDate);
+
+            container.innerHTML = sortedArchives.map(archive => {
+                const archiveDate = new Date(archive.archivedDate);
+                const dateStr = formatTime(archive.archivedDate);
+                const beforeDate = new Date(archive.deletedBeforeDate);
+                const beforeDateStr = formatTime(archive.deletedBeforeDate);
+                
+                return `
+                    <div class="archived-item">
+                        <div class="archived-header">
+                            <div class="archived-date">📅 ${dateStr}</div>
+                            <div class="archived-total">${archive.deletedRecordsCount} 筆</div>
+                        </div>
+                        <div class="archived-details">
+                            <div>刪除基準：${beforeDateStr}</div>
+                            <div>歸檔項目：${archive.stats.topSpots.length} 個車位、${archive.stats.floorCount.length} 個樓層、${archive.stats.zoneCount.length} 個區域</div>
+                        </div>
+                        <div class="archived-actions">
+                            <button class="btn-view" onclick="viewArchiveDetail('${archive.id}')">查看</button>
+                            <button class="btn-delete-archive" onclick="deleteArchive('${archive.id}')">刪除</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 查看歸檔詳細
+        function viewArchiveDetail(id) {
+            const archive = archivedStats.find(a => a.id === id);
+            if (!archive) return;
+
+            currentArchiveDetail = archive;
+            
+            const content = `
+                <div class="archive-detail-section">
+                    <h4>歸檔資訊</h4>
+                    <div class="archive-detail-item">
+                        <span>歸檔時間：</span>
+                        <span>${formatTime(archive.archivedDate)}</span>
+                    </div>
+                    <div class="archive-detail-item">
+                        <span>刪除基準：</span>
+                        <span>${formatTime(archive.deletedBeforeDate)} 之前</span>
+                    </div>
+                    <div class="archive-detail-item">
+                        <span>刪除筆數：</span>
+                        <span>${archive.deletedRecordsCount} 筆</span>
+                    </div>
+                </div>
+
+                <div class="archive-detail-section">
+                    <h4>🏆 熱門停車位 Top 10</h4>
+                    ${archive.stats.topSpots.length > 0 ? 
+                        archive.stats.topSpots.map((spot, index) => 
+                            `<div class="archive-detail-item">
+                                <span>${index + 1}. ${spot[0]}</span>
+                                <span><strong>${spot[1]}</strong> 次</span>
+                            </div>`
+                        ).join('') : 
+                        '<div style="font-size:13px; color:#999;">無資料</div>'
+                    }
+                </div>
+
+                <div class="archive-detail-section">
+                    <h4>🏢 樓層統計</h4>
+                    ${archive.stats.floorCount.length > 0 ?
+                        archive.stats.floorCount.map(([floor, count]) =>
+                            `<div class="archive-detail-item">
+                                <span>${floor}</span>
+                                <span><strong>${count}</strong> 次</span>
+                            </div>`
+                        ).join('') :
+                        '<div style="font-size:13px; color:#999;">無資料</div>'
+                    }
+                </div>
+
+                <div class="archive-detail-section">
+                    <h4>區域統計</h4>
+                    ${archive.stats.zoneCount.length > 0 ?
+                        archive.stats.zoneCount.map(([zone, count]) =>
+                            `<div class="archive-detail-item">
+                                <span>${zone} 區</span>
+                                <span><strong>${count}</strong> 次</span>
+                            </div>`
+                        ).join('') :
+                        '<div style="font-size:13px; color:#999;">無資料</div>'
+                    }
+                </div>
+            `;
+            
+            document.getElementById('archiveDetailContent').innerHTML = content;
+            document.getElementById('archiveDetailModal').style.display = 'block';
+        }
+
+        // 關閉歸檔詳細模態框
+        function closeArchiveDetailModal() {
+            document.getElementById('archiveDetailModal').style.display = 'none';
+            currentArchiveDetail = null;
+        }
+
+        // 刪除歸檔
+        function deleteArchive(id) {
+            if (confirm('確定要刪除這筆歸檔資料嗎？')) {
+                archivedStats = archivedStats.filter(a => a.id !== id);
+                localStorage.setItem('archivedStats', JSON.stringify(archivedStats));
+                renderArchivedList();
+                showToast('歸檔資料已刪除');
+            }
+        }
+
+        // 切換統計標籤
+        function switchTab(tabName) {
+            // 移除所有 active
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // 添加 active
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+
+            // 如果是歸檔標籤，確保歸檔列表已渲染
+            if (tabName === 'archive') {
+                renderArchivedList();
+            }
+        }
+
+        // 工具函數
+        function getFullSpotNumber(record) {
+            const floorStr = record.floor === -1 ? 'B1' : record.floor;
+            const spotStr = String(record.spotNumber).padStart(2, '0');
+            return `${floorStr}${record.zone}${spotStr}`;
+        }
+
+        function getFloorDisplayName(floor) {
+            return floor === -1 ? '地下一層' : `${floor} 樓`;
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}`;
+        }
+
+        function getDirectionHint(record) {
+            const hints = [
+                `停在${getFloorDisplayName(record.floor)}的${record.zone}區，${record.spotNumber === 0 ? '未標註車位' : record.spotNumber + '號車位'}`,
+                `記住：${getFullSpotNumber(record)}`,
+                `下次找車時，直接前往${getFloorDisplayName(record.floor)}的${record.zone}區`,
+                `車位編號：${getFullSpotNumber(record)}`
+            ];
+            return hints[Math.floor(Math.random() * hints.length)];
+        }
+
+        // 儲存到本地
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('parkingRecords', JSON.stringify(records));
+            } catch (error) {
+                console.error('儲存失敗:', error);
+                showError('儲存失敗: ' + error.message);
+            }
+        }
+
+        // 顯示提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 顯示錯誤
+        function showError(message) {
+            console.error('錯誤:', message);
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            setTimeout(() => {
+                errorDiv.classList.remove('show');
+            }, 3000);
+        }
+
+        // 點擊模態框外部關閉
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
