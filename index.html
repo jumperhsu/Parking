@@ -332,8 +332,16 @@
             gap: 10px;
             margin-top: 20px;
         }
+        
+        .modal-actions-top {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
 
-        .modal-actions button {
+        .modal-actions button, .modal-actions-top button {
             flex: 1;
             padding: 12px;
             border: none;
@@ -866,16 +874,57 @@
         .error-message.show {
             display: block;
         }
+
+        /* 新增：單選按鈕樣式 */
+        .radio-group-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .radio-row {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .radio-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .radio-option input[type="radio"] {
+            display: none;
+        }
+
+        .radio-option label {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            text-align: center;
+            background: #f0f2f5;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #555;
+            transition: all 0.2s;
+        }
+
+        .radio-option input[type="radio"]:checked + label {
+            background: #eef2ff;
+            border-color: #667eea;
+            color: #667eea;
+            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 標題 -->
         <div class="header">
             <h1>🅿️ 停車位置記錄</h1>
         </div>
 
-        <!-- 最近停車位置（固定顯示在上方） -->
         <div id="latestSpot" class="latest-spot">
             <div class="latest-spot-empty">
                 <div class="latest-spot-empty-icon">📍</div>
@@ -883,13 +932,11 @@
             </div>
         </div>
 
-        <!-- 按鈕群組 -->
         <div class="btn-group">
-            <button class="btn btn-primary" onclick="openAddModal()">➕ 新增</button>
             <button class="btn btn-info" onclick="toggleStats()">📊 統計</button>
+            <button class="btn btn-primary" onclick="openAddModal()">➕ 新增</button>
         </div>
 
-        <!-- 統計面板 -->
         <div id="statsPanel" class="stats-container">
             <div class="stats-title">📊 停車統計分析</div>
             
@@ -928,57 +975,90 @@
                 </div>
             </div>
 
-            <!-- 清除資料按鈕 -->
             <div class="btn-group-vertical">
                 <button class="btn btn-secondary" onclick="toggleStats()">關閉統計</button>
                 <button class="btn btn-warning" onclick="openClearDataModal()">🗑️ 批次清除資料</button>
             </div>
         </div>
 
-        <!-- 歷史記錄標題 -->
         <div class="history-title">📜 歷史記錄</div>
 
-        <!-- 停車記錄列表 -->
         <div id="recordsList"></div>
 
-        <!-- 空狀態 -->
         <div id="emptyState" class="empty-state" style="display: none;">
             <div class="empty-state-icon">🅿️</div>
             <div>目前沒有其他停車記錄</div>
             <div style="font-size: 14px; margin-top: 8px;">點擊上方「新增」按鈕開始</div>
         </div>
 
-        <!-- 新增模態框 -->
         <div id="addModal" class="modal">
             <div class="modal-content">
                 <button class="close-btn" onclick="closeAddModal()">×</button>
                 <div class="modal-header">新增停車記錄</div>
-                
-                <!-- 樓層與區域 -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">樓層 *</label>
-                        <select id="floor" class="form-select">
-                            <option value="-1">B1 (地下一層)</option>
-                            <option value="1">1 樓</option>
-                            <option value="2">2 樓</option>
-                            <option value="3">3 樓</option>
-                            <option value="4">4 樓</option>
-                            <option value="5">5 樓</option>
-                            <option value="6">6 樓</option>
-                        </select>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="form-label">區域 *</label>
-                        <select id="zone" class="form-select">
-                            <option value="A">A 區</option>
-                            <option value="B">B 區</option>
-                        </select>
+                <div class="modal-actions-top">
+                    <button class="btn btn-secondary" onclick="closeAddModal()">取消</button>
+                    <button class="btn btn-success" onclick="saveRecord()">儲存</button>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">樓層 *</label>
+                    <div class="radio-group-container">
+                        <div class="radio-row">
+                            <div class="radio-option">
+                                <input type="radio" name="floor" id="floor-b1" value="-1" checked>
+                                <label for="floor-b1">B1</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="floor" id="floor-1" value="1">
+                                <label for="floor-1">1F</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="floor" id="floor-2" value="2">
+                                <label for="floor-2">2F</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="floor" id="floor-3" value="3">
+                                <label for="floor-3">3F</label>
+                            </div>
+                        </div>
+                        <div class="radio-row">
+                            <div class="radio-option">
+                                <input type="radio" name="floor" id="floor-4" value="4">
+                                <label for="floor-4">4F</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="floor" id="floor-5" value="5">
+                                <label for="floor-5">5F</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="floor" id="floor-6" value="6">
+                                <label for="floor-6">6F</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="floor" id="floor-7" value="7">
+                                <label for="floor-7">7F</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 車位號碼 -->
+                <div class="form-group">
+                    <label class="form-label">區域 *</label>
+                    <div class="radio-group-container">
+                        <div class="radio-row">
+                            <div class="radio-option">
+                                <input type="radio" name="zone" id="zone-a" value="A" checked>
+                                <label for="zone-a">A 區</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="zone" id="zone-b" value="B">
+                                <label for="zone-b">B 區</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">車位號碼 (00-99) *</label>
                     <div class="number-input">
@@ -989,7 +1069,6 @@
                     <div class="input-hint">💡 00 表示未標註號碼，可直接輸入數字或使用 +/- 調整</div>
                 </div>
 
-                <!-- 日期時間選擇 -->
                 <div class="form-group">
                     <label class="datetime-label">📅 停車日期 <span class="required">*</span></label>
                     <input type="date" id="parkingDate" class="form-input">
@@ -1001,20 +1080,13 @@
                     <div id="datetimeHint" class="current-time-hint">💡 將使用您選擇的日期和時間</div>
                 </div>
 
-                <!-- 備註 -->
                 <div class="form-group">
                     <label class="form-label">備註 (選填)</label>
                     <textarea id="notes" class="form-textarea" placeholder="例如：靠近電梯、柱子旁"></textarea>
                 </div>
-
-                <div class="modal-actions">
-                    <button class="btn btn-secondary" onclick="closeAddModal()">取消</button>
-                    <button class="btn btn-success" onclick="saveRecord()">儲存</button>
-                </div>
             </div>
         </div>
 
-        <!-- 詳情模態框 -->
         <div id="detailModal" class="modal">
             <div class="modal-content">
                 <button class="close-btn" onclick="closeDetailModal()">×</button>
@@ -1027,7 +1099,6 @@
             </div>
         </div>
 
-        <!-- 清除資料模態框 -->
         <div id="clearDataModal" class="modal">
             <div class="modal-content">
                 <button class="close-btn" onclick="closeClearDataModal()">×</button>
@@ -1038,7 +1109,6 @@
                     您將清除指定日期之前的所有停車記錄。
                 </div>
 
-                <!-- 日期選擇區 -->
                 <div class="date-selector">
                     <div class="date-label">📅 刪除指定日期之前的記錄</div>
                     <div class="date-input-group">
@@ -1048,13 +1118,11 @@
                     <div class="input-hint">💡 預設為一年前，您也可以選擇其他日期</div>
                 </div>
 
-                <!-- 統計資訊 -->
                 <div id="clearStatsInfo" class="stats-summary" style="display: none;">
                     <div>📊 統計資訊：</div>
                     <div id="statsContent"></div>
                 </div>
 
-                <!-- 歸檔統計選項 -->
                 <div class="archive-section">
                     <div class="archive-title">📦 歸檔統計資料</div>
                     <div class="archive-option">
@@ -1070,13 +1138,11 @@
                     </div>
                 </div>
 
-                <!-- 說明框 -->
                 <div class="info-box">
                     <span class="info-box-icon">ℹ️</span>
                     系統將保留該日期之後的記錄（包含該日期）
                 </div>
 
-                <!-- 確認輸入 -->
                 <div class="form-group">
                     <label class="form-label">確認清除</label>
                     <input type="text" id="confirmText" class="confirm-input" placeholder="輸入 DELETE 確認">
@@ -1090,7 +1156,6 @@
             </div>
         </div>
 
-        <!-- 歸檔詳細查看模態框 -->
         <div id="archiveDetailModal" class="modal">
             <div class="modal-content">
                 <button class="close-btn" onclick="closeArchiveDetailModal()">×</button>
@@ -1102,10 +1167,8 @@
             </div>
         </div>
 
-        <!-- 提示訊息 -->
         <div id="toast" class="toast"></div>
         
-        <!-- 錯誤訊息 -->
         <div id="errorMessage" class="error-message"></div>
     </div>
 
@@ -1346,8 +1409,11 @@
         // 開啟新增模態框
         function openAddModal() {
             currentEditId = null;
-            document.getElementById('floor').value = '-1';
-            document.getElementById('zone').value = 'A';
+            
+            // 重置單選按鈕 (設為 B1 和 A 區)
+            document.querySelector('input[name="floor"][value="-1"]').checked = true;
+            document.querySelector('input[name="zone"][value="A"]').checked = true;
+            
             document.getElementById('spotNumber').value = '00';
             document.getElementById('notes').value = '';
             
@@ -1374,8 +1440,10 @@
 
         // 儲存記錄
         function saveRecord() {
-            const floor = parseInt(document.getElementById('floor').value);
-            const zone = document.getElementById('zone').value;
+            // 修改：使用 querySelector 獲取選中的 radio button 的值
+            const floor = parseInt(document.querySelector('input[name="floor"]:checked').value);
+            const zone = document.querySelector('input[name="zone"]:checked').value;
+            
             const spotNumberStr = document.getElementById('spotNumber').value;
             const spotNumber = parseInt(spotNumberStr);
             const notes = document.getElementById('notes').value.trim();
