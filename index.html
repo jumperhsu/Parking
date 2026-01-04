@@ -951,6 +951,39 @@
             color: #667eea;
             box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
         }
+		
+		/* 新增：讓日期與時間並排的容器 */
+		.form-row-group {
+			display: flex;
+			gap: 10px;
+			margin-bottom: 15px;
+		}
+
+		.form-row-group .form-group {
+			flex: 1;
+			margin-bottom: 0; /* 移除底部間距，由父容器統一管理 */
+		}
+
+		/* 確保日期時間輸入框高度一致且美觀 */
+		.form-input-compact {
+			width: 100%;
+			padding: 10px;
+			border: 2px solid #e0e0e0;
+			border-radius: 8px;
+			font-size: 16px;
+			background: #f8f9fa;
+		}
+		/* 修改：將垂直排列改為水平並排 */
+		.btn-group-horizontal {
+			display: flex;
+			gap: 10px;
+			margin-top: 15px;
+		}
+
+		.btn-group-horizontal button {
+			flex: 1; /* 讓兩個按鈕等寬 */
+		}
+		
     </style>
 </head>
 <body>
@@ -1009,10 +1042,12 @@
                 </div>
             </div>
 
-            <div class="btn-group-vertical">
-                <button class="btn btn-secondary" onclick="toggleStats()">關閉統計</button>
-                <button class="btn btn-warning" onclick="openClearDataModal()">🗑️ 批次清除資料</button>
-            </div>
+			<div class="btn-group-horizontal">				
+				<button class="btn btn-warning" onclick="openClearDataModal()">🗑️ 批次清除</button>
+				<button class="btn btn-secondary" onclick="toggleStats()">關閉統計</button>
+			</div>
+
+			</div>
         </div>
 
         <div class="history-title">📜 歷史記錄</div>
@@ -1102,16 +1137,19 @@
                     <div class="input-hint">💡 00 表示未標註號碼，可直接輸入數字或使用 +/- 調整</div>
                 </div>
 
-                <div class="form-group">
-                    <label class="datetime-label">📅 停車日期 <span class="required">*</span></label>
-                    <input type="date" id="parkingDate" class="form-input">
-                </div>
-
-                <div class="form-group">
-                    <label class="datetime-label">⏰ 停車時間 <span class="required">*</span></label>
-                    <input type="time" id="parkingTime" class="form-input">
-                    <div id="datetimeHint" class="current-time-hint">💡 將使用您選擇的日期和時間</div>
-                </div>
+               <div class="form-row-group">
+					<div class="form-group">
+						<label class="datetime-label">📅 日期 <span class="required">*</span></label>
+						<input type="date" id="parkingDate" class="form-input-compact">
+					</div>
+					<div class="form-group">
+						<label class="datetime-label">⏰ 時間 <span class="required">*</span></label>
+						<input type="time" id="parkingTime" class="form-input-compact">
+					</div>
+				</div>
+				<div id="datetimeHint" class="current-time-hint" style="margin-top: -10px; margin-bottom: 15px;">
+					💡 將使用您選擇的日期和時間
+				</div>
 
                 <div class="form-group">
                     <label class="form-label">備註 (選填)</label>
