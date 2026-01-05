@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>停車位置記錄</title>
     <style>
+        /* --- 樣式保持原樣，僅新增衝突模態框樣式 --- */
         * {
             margin: 0;
             padding: 0;
@@ -258,7 +259,6 @@
             font-weight: bold;
             margin-bottom: 15px;
             color: #667eea;
-            /* 為了避免文字被右上角的浮動按鈕遮住 */
             padding-right: 100px; 
         }
 
@@ -333,7 +333,6 @@
             margin-top: 20px;
         }
         
-        /* 浮動按鈕群組 */
         .modal-floating-actions {
             position: absolute;
             top: 15px;
@@ -343,7 +342,6 @@
             z-index: 10;
         }
 
-        /* 圓形圖標按鈕樣式 */
         .btn-icon-circle {
             width: 42px;
             height: 42px;
@@ -352,7 +350,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px; /* 圖標大小 */
+            font-size: 20px;
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 3px 6px rgba(0,0,0,0.15);
@@ -460,7 +458,6 @@
             gap: 5px;
         }
 
-        /* 統計頁面樣式 */
         .stats-container {
             display: none;
             background: white;
@@ -569,7 +566,6 @@
             border-bottom: 2px solid #667eea;
         }
 
-        /* 新增：點擊輸入框時的提示文字 */
         .input-hint {
             font-size: 12px;
             color: #667eea;
@@ -577,7 +573,6 @@
             font-weight: bold;
         }
 
-        /* 未標註號碼的特殊樣式 */
         .unmarked-spot {
             color: #ff9800;
             font-weight: bold;
@@ -593,7 +588,6 @@
             font-weight: normal;
         }
 
-        /* 新增：清除資料的警告樣式 */
         .clear-warning {
             background: #fff3cd;
             border: 2px solid #ffc107;
@@ -667,7 +661,6 @@
             width: 100%;
         }
 
-        /* 新增：日期選擇和統計資訊樣式 */
         .date-selector {
             background: #f8f9fa;
             padding: 12px;
@@ -747,7 +740,6 @@
             margin-right: 5px;
         }
 
-        /* 新增：歸檔統計樣式 */
         .archive-section {
             background: #f0f8ff;
             border: 2px solid #667eea;
@@ -799,7 +791,6 @@
             color: #1b5e20;
         }
 
-        /* 歸檔詳細查看模態框 */
         .archive-detail-content {
             max-height: 300px;
             overflow-y: auto;
@@ -835,7 +826,6 @@
             font-size: 14px;
         }
 
-        /* 新增：日期時間選擇器樣式 */
         .datetime-input-group {
             display: flex;
             gap: 10px;
@@ -891,7 +881,6 @@
             color: #e74c3c;
         }
 
-        /* 新增：錯誤提示樣式 */
         .error-message {
             background: #fee;
             border: 2px solid #fcc;
@@ -907,7 +896,6 @@
             display: block;
         }
 
-        /* 新增：單選按鈕樣式 */
         .radio-group-container {
             display: flex;
             flex-direction: column;
@@ -950,7 +938,6 @@
             box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
         }
         
-        /* 新增：讓日期與時間並排的容器 */
         .form-row-group {
             display: flex;
             gap: 10px;
@@ -959,10 +946,9 @@
 
         .form-row-group .form-group {
             flex: 1;
-            margin-bottom: 0; /* 移除底部間距，由父容器統一管理 */
+            margin-bottom: 0;
         }
 
-        /* 確保日期時間輸入框高度一致且美觀 */
         .form-input-compact {
             width: 100%;
             padding: 10px;
@@ -972,7 +958,6 @@
             background: #f8f9fa;
         }
         
-        /* 修改：將垂直排列改為水平並排 */
         .btn-group-horizontal {
             display: flex;
             gap: 10px;
@@ -980,15 +965,13 @@
         }
 
         .btn-group-horizontal button {
-            flex: 1; /* 讓兩個按鈕等寬 */
+            flex: 1;
         }
         
-        /* 新增：編輯模式專用樣式 */
         .edit-mode .modal-header {
             color: #ff9800;
         }
         
-        /* 新增：查看頁面中的編輯/刪除按鈕樣式 */
         .detail-actions {
             display: flex;
             gap: 10px;
@@ -1005,7 +988,6 @@
             cursor: pointer;
         }
         
-        /* 新增：編輯按鈕 */
         .btn-edit {
             background: #ff9800;
             color: white;
@@ -1016,7 +998,6 @@
             transform: translateY(-2px);
         }
         
-        /* 歸檔項目樣式 */
         .archived-item {
             background: #f8f9fa;
             border-radius: 8px;
@@ -1080,7 +1061,6 @@
             font-size: 13px;
         }
         
-        /* 雲端同步圖標 */
         #cloudIconBtn {
             position: absolute;
             top: 20px;
@@ -1099,6 +1079,51 @@
         
         #cloudIconBtn:hover {
             transform: scale(1.1);
+        }
+
+        /* === 新增：同步衝突解決模態框樣式 === */
+        .conflict-desc {
+            margin: 10px 0 20px 0;
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .conflict-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .conflict-options button {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: left;
+            position: relative;
+        }
+        .conflict-options button:hover {
+            background: #f8f9fa;
+        }
+        .conflict-options button strong {
+            display: block;
+            margin-bottom: 3px;
+            color: #333;
+        }
+        .conflict-options button small {
+            color: #777;
+            font-weight: normal;
+        }
+        .conflict-tag {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            background: #eee;
         }
     </style>
 </head>
@@ -1133,7 +1158,6 @@
             </div>
         </div>
 
-        <!-- 最近停車位置 - 現在可以點擊 -->
         <div id="latestSpot" class="latest-spot" onclick="showLatestRecord()">
             <div class="latest-spot-empty">
                 <div class="latest-spot-empty-icon">📍</div>
@@ -1200,7 +1224,6 @@
             <div style="font-size: 14px; margin-top: 8px;">點擊上方「新增」按鈕開始</div>
         </div>
 
-        <!-- 新增/編輯模態框 -->
         <div id="addModal" class="modal">
             <div class="modal-content" id="addModalContent">
                 <div class="modal-floating-actions">
@@ -1299,7 +1322,6 @@
             </div>
         </div>
 
-        <!-- 查看/編輯模態框 -->
         <div id="detailModal" class="modal">
             <div class="modal-content">
                 <button class="close-btn" onclick="closeDetailModal()">×</button>
@@ -1313,7 +1335,6 @@
             </div>
         </div>
 
-        <!-- 清除資料模態框 -->
         <div id="clearDataModal" class="modal">
             <div class="modal-content">
                 <button class="close-btn" onclick="closeClearDataModal()">×</button>
@@ -1371,7 +1392,6 @@
             </div>
         </div>
 
-        <!-- 歸檔詳細模態框 -->
         <div id="archiveDetailModal" class="modal">
             <div class="modal-content">
                 <button class="close-btn" onclick="closeArchiveDetailModal()">×</button>
@@ -1383,8 +1403,33 @@
             </div>
         </div>
 
+        <div id="syncConflictModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header" style="color: #ff9800;">⚠️ 資料同步衝突</div>
+                <div class="conflict-desc">
+                    檢測到您的<strong>本地端</strong>與<strong>雲端</strong>皆有停車記錄資料。請問您希望如何處理？
+                </div>
+                <div class="conflict-options">
+                    <button onclick="resolveConflict('local')">
+                        <strong>保留本地資料</strong>
+                        <small>使用目前手機上的資料，覆蓋雲端資料 (雲端資料將遺失)</small>
+                        <span class="conflict-tag">上傳</span>
+                    </button>
+                    <button onclick="resolveConflict('cloud')">
+                        <strong>使用雲端資料</strong>
+                        <small>下載雲端備份，覆蓋手機目前資料 (手機資料將遺失)</small>
+                        <span class="conflict-tag" style="background:#e3f2fd; color:#1976d2;">下載</span>
+                    </button>
+                    <button onclick="resolveConflict('merge')">
+                        <strong>合併兩者資料</strong>
+                        <small>保留雙方資料，重複的記錄將被過濾</small>
+                        <span class="conflict-tag" style="background:#e8f5e9; color:#2e7d32;">推薦</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div id="toast" class="toast"></div>
-        
         <div id="errorMessage" class="error-message"></div>
     </div>
 
@@ -1393,65 +1438,149 @@
         let GITHUB_TOKEN = localStorage.getItem('githubToken') || '';
         let GIST_ID = localStorage.getItem('gistId') || '';
         const FILE_NAME = 'parking_data.json';
+        
+        // 用於暫存雲端抓下來的資料，供衝突處理使用
+        let pendingCloudRecords = null;
 
         // --- 雲端同步函數 ---
 
-        // 1. 登入雲端
+        // 1. 登入雲端 (觸發同步檢查)
         async function loginCloud() {
             const token = document.getElementById('githubToken').value.trim();
             if (!token) return showToast('請輸入 Token');
             
             GITHUB_TOKEN = token;
-            showToast('正在登入雲端...');
+            showToast('正在登入並檢查雲端...');
             
             try {
                 // 嘗試找尋現有的 Gist 或建立新的
                 if (!GIST_ID) {
                     await findOrCreateGist();
-                } else {
-                    await fetchFromCloud();
                 }
+                
+                // 連線成功後，執行同步邏輯檢查 (重要修改)
+                await performSyncCheck();
                 
                 localStorage.setItem('githubToken', GITHUB_TOKEN);
                 updateSyncUI(true);
-                showToast('雲端登入成功');
             } catch (err) {
-                showError('登入失敗，請檢查 Token');
+                console.error(err);
+                showError('登入或同步失敗，請檢查 Token');
             }
         }
 
-        // 2. 從雲端抓取資料
-        async function fetchFromCloud() {
+        // 2. 核心同步檢查邏輯 (新增)
+        async function performSyncCheck() {
             if (!GITHUB_TOKEN || !GIST_ID) return;
-            
+
             try {
-                const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` },
-                    cache: 'no-store' // 確保不抓取舊的快取內容
-                });
-                
-                if (!response.ok) throw new Error('連線失敗');
-                
-                const data = await response.json();
-                if (data.files && data.files[FILE_NAME]) {
-                    const cloudRecords = JSON.parse(data.files[FILE_NAME].content);
-                    
-                    // 覆蓋本地資料
+                // 1. 取得雲端資料 (不直接覆蓋，先暫存)
+                const cloudRecords = await getCloudRecords(); 
+                const localRecords = records;
+
+                const hasCloudData = cloudRecords && cloudRecords.length > 0;
+                const hasLocalData = localRecords && localRecords.length > 0;
+
+                console.log(`同步檢查: 雲端有資料=${hasCloudData}, 本地有資料=${hasLocalData}`);
+
+                if (hasCloudData && !hasLocalData) {
+                    // 情境 A: 雲端有，本地無 -> 自動下載
                     records = cloudRecords;
-                    // 存入 localStorage 但不再次上傳 (避免無限迴圈)
-                    localStorage.setItem('parkingRecords', JSON.stringify(records)); 
-                    
-                    // 立即重繪畫面
+                    saveToLocalStorage(false); // 存本地，不觸發上傳
                     renderRecords();
                     updateLatestSpot();
+                    showToast('✅ 已從雲端還原資料');
+                } 
+                else if (!hasCloudData && hasLocalData) {
+                    // 情境 B: 雲端無，本地有 -> 自動上傳
+                    await uploadToCloud();
+                    showToast('✅ 已將本地資料上傳至雲端');
+                } 
+                else if (hasCloudData && hasLocalData) {
+                    // 情境 C: 兩邊都有 -> 檢查是否完全一樣
+                    if (JSON.stringify(cloudRecords) === JSON.stringify(localRecords)) {
+                        showToast('✅ 資料已同步');
+                    } else {
+                        // 資料不同，跳出衝突解決視窗
+                        pendingCloudRecords = cloudRecords;
+                        document.getElementById('syncConflictModal').style.display = 'block';
+                    }
+                } 
+                else {
+                    // 情境 D: 兩邊都沒資料 -> 沒事發生
+                    showToast('☁️ 雲端已連線 (尚無資料)');
                 }
+
             } catch (err) {
-                console.error('雲端同步失敗:', err);
-                showError('雲端同步失敗');
+                console.error('同步檢查失敗:', err);
+                throw err;
             }
         }
+
+        // 3. 解決衝突 (新增)
+        async function resolveConflict(choice) {
+            document.getElementById('syncConflictModal').style.display = 'none';
+            
+            try {
+                if (choice === 'local') {
+                    // 保留本地 -> 強制上傳
+                    await uploadToCloud();
+                    showToast('✅ 已保留本地資料並上傳');
+                } else if (choice === 'cloud') {
+                    // 使用雲端 -> 覆蓋本地
+                    if (pendingCloudRecords) {
+                        records = pendingCloudRecords;
+                        saveToLocalStorage(false); // 存本地，不觸發上傳
+                        renderRecords();
+                        updateLatestSpot();
+                        showToast('✅ 已使用雲端資料覆蓋');
+                    }
+                } else if (choice === 'merge') {
+                    // 合併資料
+                    if (pendingCloudRecords) {
+                        // 建立 Map 以 ID 為鍵值去重
+                        const mergedMap = new Map();
+                        
+                        // 先放雲端 (舊)
+                        pendingCloudRecords.forEach(r => mergedMap.set(String(r.id), r));
+                        // 再放本地 (新 - 若 ID 相同會覆蓋雲端，視為本地較新)
+                        records.forEach(r => mergedMap.set(String(r.id), r));
+                        
+                        // 轉回陣列並依時間排序 (新到舊)
+                        records = Array.from(mergedMap.values()).sort((a, b) => b.parkingTime - a.parkingTime);
+                        
+                        // 保存結果：存本地並上傳雲端
+                        saveToLocalStorage(true); 
+                        renderRecords();
+                        updateLatestSpot();
+                        showToast('✅ 資料已合併並同步');
+                    }
+                }
+            } catch (e) {
+                showError('處理衝突時發生錯誤');
+                console.error(e);
+            }
+            
+            pendingCloudRecords = null; // 清除暫存
+        }
+
+        // 4. 只取得雲端資料，不更新畫面 (輔助函式)
+        async function getCloudRecords() {
+            const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                headers: { 'Authorization': `token ${GITHUB_TOKEN}` },
+                cache: 'no-store'
+            });
+            
+            if (!response.ok) throw new Error('連線失敗');
+            
+            const data = await response.json();
+            if (data.files && data.files[FILE_NAME]) {
+                return JSON.parse(data.files[FILE_NAME].content);
+            }
+            return [];
+        }
         
-        // 3. 上傳資料到雲端
+        // 5. 上傳資料到雲端
         async function uploadToCloud() {
             if (!GITHUB_TOKEN || !GIST_ID) return;
             
@@ -1474,7 +1603,7 @@
             console.log('雲端備份完成');
         }
 
-        // 4. 尋找或建立 Gist 儲存槽
+        // 6. 尋找或建立 Gist 儲存槽
         async function findOrCreateGist() {
             const response = await fetch('https://api.github.com/gists', {
                 headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
@@ -1505,34 +1634,31 @@
 
         // --- 雲端 UI 控制 ---
 
-        // 切換面板顯示/隱藏
         function toggleCloudPanel() {
             const panel = document.getElementById('cloudPanel');
             panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
         }
 
-        // 登入按鈕處理（點擊後登入並收合）
         async function handleLogin() {
-            await loginCloud(); // 呼叫原本的登入邏輯
-            // 登入成功後在 loginCloud 內會呼叫 updateSyncUI，這裡負責收合
+            await loginCloud();
             if (GITHUB_TOKEN) {
-                toggleCloudPanel();
+                // 如果成功登入且沒有跳出衝突視窗，則關閉面板
+                if (document.getElementById('syncConflictModal').style.display === 'none') {
+                    toggleCloudPanel();
+                }
             }
         }
 
-        // 修改原有的 updateSyncUI，增加圖示顏色變換
         function updateSyncUI(isLoggedIn) {
             const cloudSvg = document.getElementById('cloudSvg');
             const loginArea = document.getElementById('loginArea');
             const userArea = document.getElementById('userArea');
             
             if (isLoggedIn) {
-                // 連線後：藍色 (#3498db)
                 cloudSvg.style.fill = '#3498db';
                 loginArea.style.display = 'none';
                 userArea.style.display = 'block';
             } else {
-                // 未連線：紅色 (#e74c3c)
                 cloudSvg.style.fill = '#e74c3c';
                 loginArea.style.display = 'block';
                 userArea.style.display = 'none';
@@ -1567,32 +1693,29 @@
             renderRecords();
             updateLatestSpot();
 
-            // 3. 【核心新增】雲端同步邏輯
+            // 3. 雲端同步邏輯 (初始化檢查)
             if (GITHUB_TOKEN) {
                 updateSyncUI(true);
                 showToast('🔄 正在同步雲端資料...');
                 try {
-                    await fetchFromCloud(); // 從雲端取回資料並自動 renderRecords()
-                    showToast('✅ 雲端同步完成');
+                    // 使用新的同步檢查邏輯取代原本直接 fetch
+                    await performSyncCheck(); 
                 } catch (error) {
                     console.error('初始同步失敗:', error);
                     showToast('⚠️ 雲端同步失敗，使用本地資料');
                 }
             } else {
-                // 如果沒有雲端 Token，就單純存一次本地格式化後的資料
                 saveToLocalStorage(false); 
             }
             
-            // --- 以下為您原有的 UI 監聽與初始化功能 ---
+            // --- UI 監聽與初始化功能 ---
 
-            // 設置車位號碼輸入框的焦點事件
             const spotNumberInput = document.getElementById('spotNumber');
             if (spotNumberInput) {
                 spotNumberInput.addEventListener('focus', function() {
                     this.select();
                 });
 
-                // 處理車位號碼輸入，自動格式化為兩位數
                 spotNumberInput.addEventListener('input', function() {
                     let value = this.value;
                     value = value.replace(/\D/g, '');
@@ -1614,7 +1737,6 @@
                 });
             }
 
-            // 處理按鈕增減
             window.changeSpotNumber = function(delta) {
                 const input = document.getElementById('spotNumber');
                 if (!input) return;
@@ -1625,7 +1747,6 @@
                 input.value = value.toString().padStart(2, '0');
             };
 
-            // 處理確認清除輸入框
             const confirmInput = document.getElementById('confirmText');
             if (confirmInput) {
                 confirmInput.addEventListener('input', function() {
@@ -1638,7 +1759,6 @@
                 });
             }
 
-            // 處理日期選擇器變更
             const clearDateInput = document.getElementById('clearDate');
             if (clearDateInput) {
                 clearDateInput.addEventListener('change', function() {
@@ -1646,7 +1766,6 @@
                 });
             }
 
-            // 處理歸檔選項變更
             const archiveCheckbox = document.getElementById('archiveStats');
             if (archiveCheckbox) {
                 archiveCheckbox.addEventListener('change', function() {
@@ -1654,21 +1773,17 @@
                 });
             }
 
-            // 處理新增模態框的日期時間輸入
             const parkingDateInput = document.getElementById('parkingDate');
             const parkingTimeInput = document.getElementById('parkingTime');
             
             if (parkingDateInput && parkingTimeInput) {
-                // 設置預設值：當前日期和時間
                 const now = new Date();
                 parkingDateInput.value = now.toISOString().split('T')[0];
                 parkingTimeInput.value = now.toTimeString().slice(0, 5);
                 
-                // 監聽變化更新提示
                 parkingDateInput.addEventListener('change', updateDateTimeHint);
                 parkingTimeInput.addEventListener('change', updateDateTimeHint);
                 
-                // 初始更新提示
                 updateDateTimeHint();
             }
         });
@@ -1690,7 +1805,6 @@
                 return;
             }
             
-            // 檢查是否為今天
             const today = new Date().toISOString().split('T')[0];
             const selectedDateTime = new Date(dateStr + 'T' + timeStr);
             const now = new Date();
@@ -1721,7 +1835,6 @@
                 return;
             }
 
-            // 找出最近的一筆記錄
             const latestRecord = records.reduce((latest, current) => {
                 return current.parkingTime > latest.parkingTime ? current : latest;
             });
@@ -1741,29 +1854,22 @@
                 </div>
             `;
             
-            // 設置點擊事件處理最近記錄
             latestSpotDiv.onclick = function() {
                 showLatestRecord();
             };
         }
 
-        // 顯示最近一筆記錄
         function showLatestRecord() {
             if (records.length === 0) {
                 showToast('目前沒有停車記錄');
                 return;
             }
-            
-            // 找出最近的一筆記錄
             const latestRecord = records.reduce((latest, current) => {
                 return current.parkingTime > latest.parkingTime ? current : latest;
             });
-            
-            // 顯示詳細資訊
             showDetail(latestRecord.id);
         }
 
-        // 渲染停車記錄列表（排除最近一筆）
         function renderRecords() {
             const container = document.getElementById('recordsList');
             const emptyState = document.getElementById('emptyState');
@@ -1774,12 +1880,10 @@
                 return;
             }
 
-            // 找出最近的一筆
             const latestRecord = records.reduce((latest, current) => {
                 return current.parkingTime > latest.parkingTime ? current : latest;
             });
 
-            // 過濾掉最近的一筆，並排序
             const otherRecords = records
                 .filter(r => r.id !== latestRecord.id)
                 .sort((a, b) => b.parkingTime - a.parkingTime);
@@ -1792,10 +1896,8 @@
 
             emptyState.style.display = 'none';
 
-            // 渲染歷史記錄
             container.innerHTML = otherRecords.map(record => {
                 const isUnmarked = record.spotNumber === 0;
-                // 確保 ID 是字串類型
                 const recordId = String(record.id);
                 
                 return `
@@ -1816,33 +1918,22 @@
             }).join('');
         }
 
-        // 開啟新增模態框
 		function openAddModal(id = null) {
-            console.log('開啟模態框, 傳入 ID:', id); // 除錯用
-
-            // 1. 統一轉為字串避免型態錯誤，並賦值給全域變數
             currentEditId = (id !== null && id !== undefined) ? String(id) : null;
             
             if (currentEditId) {
-                // 2. 從全域變數 records 中尋找 (確保搜尋時兩邊都是字串)
                 const record = records.find(r => String(r.id) === currentEditId);
                 
                 if (record) {
-                    console.log('找到對應紀錄:', record);
-
-                    // 填充樓層 (確保選擇正確的 radio)
                     const floorRadio = document.querySelector(`input[name="floor"][value="${record.floor}"]`);
                     if (floorRadio) floorRadio.checked = true;
                     
-                    // 填充區域
                     const zoneRadio = document.querySelector(`input[name="zone"][value="${record.zone}"]`);
                     if (zoneRadio) zoneRadio.checked = true;
 
-                    // 填充車號與備註
                     document.getElementById('spotNumber').value = record.spotNumber;
                     document.getElementById('notes').value = record.notes || '';
 
-                    // 填充日期與時間 (處理 parkingTime 毫秒戳)
                     const d = new Date(record.parkingTime);
                     const yyyy = d.getFullYear();
                     const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -1856,20 +1947,16 @@
                     document.getElementById('addModalHeader').textContent = '編輯停車記錄';
                     document.getElementById('addModalContent').classList.add('edit-mode');
                 } else {
-                    console.error('在紀錄清單中找不到 ID:', currentEditId);
-                    // 如果找不到紀錄，視為新增模式
                     currentEditId = null;
                     resetAddModalToDefault();
                 }
             } else {
-                // --- 新增模式：重置 ---
                 resetAddModalToDefault();
             }
             
             updateDateTimeHint();
             document.getElementById('addModal').style.display = 'block';
 
-            // 重置函數：抽取出來避免重複寫
             function resetAddModalToDefault() {
                 const floorB1 = document.querySelector('input[name="floor"][value="-1"]');
                 if (floorB1) floorB1.checked = true;
@@ -1889,62 +1976,10 @@
             }
         }
 		
-		
-        // 開啟編輯模態框 - 修正版本
-        function openEditModal(id) {
-            console.log('開啟編輯模態框，ID:', id);
-            
-            if (!id || id === 'null') {
-                showError('無效的記錄 ID');
-                return;
-            }
-            
-            const record = records.find(r => String(r.id) === String(id));
-            if (!record) {
-                showError('找不到該記錄，ID: ' + id);
-                return;
-            }
-
-            currentEditId = id;
-            
-            // 設置表單值
-            const floorInput = document.querySelector(`input[name="floor"][value="${record.floor}"]`);
-            const zoneInput = document.querySelector(`input[name="zone"][value="${record.zone}"]`);
-            
-            if (floorInput) floorInput.checked = true;
-            if (zoneInput) zoneInput.checked = true;
-            
-            document.getElementById('spotNumber').value = String(record.spotNumber).padStart(2, '0');
-            document.getElementById('notes').value = record.notes || '';
-            
-            // 設置日期時間
-            const recordDate = new Date(record.parkingTime);
-            document.getElementById('parkingDate').value = recordDate.toISOString().split('T')[0];
-            document.getElementById('parkingTime').value = 
-                String(recordDate.getHours()).padStart(2, '0') + ':' + 
-                String(recordDate.getMinutes()).padStart(2, '0');
-            
-            // 更新提示
-            updateDateTimeHint();
-            
-            // 設定標題和模式
-            document.getElementById('addModalHeader').textContent = '編輯停車記錄';
-            document.getElementById('addModalContent').classList.add('edit-mode');
-            
-            document.getElementById('addModal').style.display = 'block';
-            
-            // 自動聚焦到車位號碼輸入框
-            setTimeout(() => {
-                document.getElementById('spotNumber').focus();
-            }, 100);
-        }
-
-        // 關閉新增模態框
         function closeAddModal() {
             document.getElementById('addModal').style.display = 'none';
         }
 
-        // 儲存記錄
 		function saveRecord() {
             const floor = parseInt(document.querySelector('input[name="floor"]:checked').value);
             const zone = document.querySelector('input[name="zone"]:checked').value;
@@ -1961,11 +1996,10 @@
             const parkingTime = new Date(dateStr + 'T' + timeStr).getTime();
 
             if (currentEditId) {
-                // 【編輯模式】使用 findIndex 找到原本的位置
                 const index = records.findIndex(r => String(r.id) === String(currentEditId));
                 if (index !== -1) {
                     records[index] = {
-                        id: currentEditId, // 保留原 ID
+                        id: currentEditId,
                         floor,
                         zone,
                         spotNumber,
@@ -1975,7 +2009,6 @@
                     showToast('紀錄已更新');
                 }
             } else {
-                // 【新增模式】
                 const newRecord = {
                     id: Date.now().toString(),
                     floor,
@@ -1988,30 +2021,24 @@
                 showToast('紀錄已新增');
             }
 
-            // 儲存並強制刷新畫面
-            saveToLocalStorage(); 
+            saveToLocalStorage(true); // 儲存並同步雲端
             renderRecords();      
-            updateLatestSpot(); // 確保上方紫色區塊同步更新
+            updateLatestSpot();
             closeAddModal();      
         }
 
-        // 顯示詳細資訊 - 修正版本
 		function showDetail(id) {
-            console.log('顯示詳細資訊，ID:', id);
-            
             if (!id || id === 'null') {
                 showError('無效的記錄 ID');
                 return;
             }
             
-            // 關鍵修正 1：統一轉為字串進行查找
             const record = records.find(r => String(r.id) === String(id));
             if (!record) {
                 showError('找不到該記錄，ID: ' + id);
                 return;
             }
 
-            // 關鍵修正 2：確保全局變數儲存的是字串
             currentDetailId = String(id); 
             
             const isUnmarked = record.spotNumber === 0 || record.spotNumber === '00';
@@ -2060,82 +2087,26 @@
             document.getElementById('detailModal').style.display = 'block';
         }
 
-        // 編輯當前記錄 - 修正版本
 		function editCurrentRecord() {
-            // 必須從 currentDetailId 拿 ID，因為 showDetail 存的是這個變數
             if (!currentDetailId) {
                 showError('無效的紀錄ID');
                 return;
             }
             
-            const targetId = currentDetailId; // 先接住 ID
-            closeDetailModal(); // 關閉詳細視窗
+            const targetId = currentDetailId;
+            closeDetailModal();
             
-            // 必須延遲一下下，確保 UI 切換不會打架
             setTimeout(() => {
-                openAddModal(targetId); // 這裡一定要把 targetId 傳進去！
+                openAddModal(targetId);
             }, 200);
         }
 		
-        // 關閉詳細模態框
         function closeDetailModal() {
             document.getElementById('detailModal').style.display = 'none';
             currentDetailId = null;
         }
 
-        // 刪除記錄（從列表）
-        function deleteRecord(id) {
-            // 驗證 ID
-            if (!id) {
-                showError('無效的 ID');
-                return;
-            }
-
-            // 確認對話框
-            const confirmResult = confirm('確定要刪除這筆停車記錄嗎？');
-            
-            if (!confirmResult) {
-                return;
-            }
-
-            try {
-                // 找到要刪除的記錄
-                const recordToDelete = records.find(r => String(r.id) === String(id));
-                
-                if (!recordToDelete) {
-                    showError('找不到要刪除的記錄');
-                    return;
-                }
-
-                // 刪除記錄
-                const initialLength = records.length;
-                records = records.filter(r => String(r.id) !== String(id));
-                
-                if (records.length === initialLength) {
-                    showError('刪除失敗，記錄未找到');
-                    return;
-                }
-
-                // 保存並更新 UI
-                saveToLocalStorage();
-                updateLatestSpot();
-                renderRecords();
-                showToast('記錄已刪除');
-                
-                // 更新統計
-                if (document.getElementById('statsPanel').style.display === 'block') {
-                    updateStats();
-                }
-            } catch (error) {
-                console.error('刪除過程中發生錯誤:', error);
-                showError('刪除失敗: ' + error.message);
-            }
-        }
-
-        // 刪除當前詳細記錄 - 修正版本
         function deleteCurrentRecord() {
-            console.log('刪除當前記錄，currentDetailId:', currentDetailId);
-            
             if (!currentDetailId || currentDetailId === 'null') {
                 showError('沒有選擇要刪除的記錄');
                 return;
@@ -2151,7 +2122,7 @@
                         return;
                     }
 
-                    saveToLocalStorage();
+                    saveToLocalStorage(true); // 儲存並同步
                     updateLatestSpot();
                     renderRecords();
                     closeDetailModal();
@@ -2167,14 +2138,12 @@
             }
         }
 
-        // 清除資料功能
         function openClearDataModal() {
             if (records.length === 0) {
                 showToast('目前沒有任何資料可以清除');
                 return;
             }
             
-            // 設置預設日期：一年前
             const oneYearAgo = new Date();
             oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
             const defaultDate = oneYearAgo.toISOString().split('T')[0];
@@ -2186,13 +2155,11 @@
             const confirmBtn = document.getElementById('clearConfirmBtn');
             if (confirmBtn) confirmBtn.disabled = true;
             
-            // 顯示統計資訊
             updateClearStats();
             updateArchiveStatsInfo();
             
             document.getElementById('clearDataModal').style.display = 'block';
             
-            // 自動聚焦到確認輸入框
             setTimeout(() => {
                 document.getElementById('confirmText').focus();
             }, 100);
@@ -2209,7 +2176,6 @@
             const selectedDate = new Date(dateStr + 'T00:00:00').getTime();
             const totalRecords = records.length;
             
-            // 計算將被刪除的記錄數量
             const toDeleteCount = records.filter(r => r.parkingTime < selectedDate).length;
             const toKeepCount = totalRecords - toDeleteCount;
             
@@ -2278,10 +2244,8 @@
                 return;
             }
 
-            // 檢查是否需要歸檔統計
             const archiveCheckbox = document.getElementById('archiveStats');
             if (archiveCheckbox.checked) {
-                // 產生統計資料
                 const stats = generateStats(toDeleteRecords);
                 const archiveItem = {
                     id: Date.now().toString(),
@@ -2297,53 +2261,41 @@
                 showToast(`已歸檔 ${toDeleteCount} 筆統計資料`);
             }
 
-            // 執行清除
             records = records.filter(r => r.parkingTime >= selectedDate);
             
-            // 保存到本地
-            saveToLocalStorage();
+            saveToLocalStorage(true); // 儲存並同步
             
-            // 關閉模態框
             closeClearDataModal();
-            
-            // 更新 UI
             updateLatestSpot();
             renderRecords();
             
-            // 如果統計面板是打開的，更新統計
             if (document.getElementById('statsPanel').style.display === 'block') {
                 updateStats();
-                renderArchivedList(); // 更新歸檔列表
+                renderArchivedList();
             }
             
-            // 顯示成功訊息
             showToast(`已刪除 ${toDeleteCount} 筆記錄，保留 ${records.length} 筆`);
         }
 
-        // 產生統計資料
         function generateStats(recordsToArchive) {
-            // 計算各停車位使用次數
             const spotCount = {};
             recordsToArchive.forEach(record => {
                 const spot = getFullSpotNumber(record);
                 spotCount[spot] = (spotCount[spot] || 0) + 1;
             });
 
-            // 計算各樓層使用次數
             const floorCount = {};
             recordsToArchive.forEach(record => {
                 const floor = getFloorDisplayName(record.floor);
                 floorCount[floor] = (floorCount[floor] || 0) + 1;
             });
 
-            // 計算各區域使用次數
             const zoneCount = {};
             recordsToArchive.forEach(record => {
                 const zone = record.zone;
                 zoneCount[zone] = (zoneCount[zone] || 0) + 1;
             });
 
-            // 排序並取 Top 10
             const topSpots = Object.entries(spotCount)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 10);
@@ -2355,13 +2307,12 @@
             };
         }
 
-        // 統計功能
         function toggleStats() {
             const panel = document.getElementById('statsPanel');
             if (panel.style.display === 'none' || panel.style.display === '') {
                 panel.style.display = 'block';
                 updateStats();
-                renderArchivedList(); // 新增：顯示歸檔列表
+                renderArchivedList();
             } else {
                 panel.style.display = 'none';
             }
@@ -2375,28 +2326,24 @@
                 return;
             }
 
-            // 計算各停車位使用次數
             const spotCount = {};
             records.forEach(record => {
                 const spot = getFullSpotNumber(record);
                 spotCount[spot] = (spotCount[spot] || 0) + 1;
             });
 
-            // 計算各樓層使用次數
             const floorCount = {};
             records.forEach(record => {
                 const floor = getFloorDisplayName(record.floor);
                 floorCount[floor] = (floorCount[floor] || 0) + 1;
             });
 
-            // 計算各區域使用次數
             const zoneCount = {};
             records.forEach(record => {
                 const zone = record.zone;
                 zoneCount[zone] = (zoneCount[zone] || 0) + 1;
             });
 
-            // 排序並顯示 Top 10 停車位
             const topSpots = Object.entries(spotCount)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 10);
@@ -2405,7 +2352,6 @@
                 const rankClass = index < 3 ? `rank-${index + 1}` : '';
                 const rankBadge = index < 3 ? `<span class="rank-badge ${rankClass}">${index + 1}</span>` : `<span class="rank-badge" style="background:#ddd;">${index + 1}</span>`;
                 
-                // 檢查是否為未標註車位
                 const isUnmarked = spot[0].endsWith('00');
                 const spotName = isUnmarked ? 
                     `<span class="unmarked-spot">${spot[0]} <span class="unmarked-hint">未標註</span></span>` : 
@@ -2421,7 +2367,6 @@
 
             document.getElementById('topSpotsList').innerHTML = topSpotsHtml;
 
-            // 顯示樓層統計
             const floorStatsHtml = Object.entries(floorCount)
                 .sort((a, b) => b[1] - a[1])
                 .map(([floor, count]) => `
@@ -2433,7 +2378,6 @@
 
             document.getElementById('floorStatsList').innerHTML = floorStatsHtml;
 
-            // 顯示區域統計
             const zoneStatsHtml = Object.entries(zoneCount)
                 .sort((a, b) => b[1] - a[1])
                 .map(([zone, count]) => `
@@ -2446,7 +2390,6 @@
             document.getElementById('zoneStatsList').innerHTML = zoneStatsHtml;
         }
 
-        // 渲染歸檔列表
         function renderArchivedList() {
             const container = document.getElementById('archivedList');
             
@@ -2455,7 +2398,6 @@
                 return;
             }
 
-            // 排序：最新的在前面
             const sortedArchives = archivedStats.sort((a, b) => b.archivedDate - a.archivedDate);
 
             container.innerHTML = sortedArchives.map(archive => {
@@ -2483,7 +2425,6 @@
             }).join('');
         }
 
-        // 查看歸檔詳細
         function viewArchiveDetail(id) {
             const archive = archivedStats.find(a => a.id === id);
             if (!archive) return;
@@ -2551,13 +2492,11 @@
             document.getElementById('archiveDetailModal').style.display = 'block';
         }
 
-        // 關閉歸檔詳細模態框
         function closeArchiveDetailModal() {
             document.getElementById('archiveDetailModal').style.display = 'none';
             currentArchiveDetail = null;
         }
 
-        // 刪除歸檔
         function deleteArchive(id) {
             if (confirm('確定要刪除這筆歸檔資料嗎？')) {
                 archivedStats = archivedStats.filter(a => a.id !== id);
@@ -2567,23 +2506,18 @@
             }
         }
 
-        // 切換統計標籤
         function switchTab(tabName) {
-            // 移除所有 active
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-            // 添加 active
             event.target.classList.add('active');
             document.getElementById(tabName + 'Tab').classList.add('active');
 
-            // 如果是歸檔標籤，確保歸檔列表已渲染
             if (tabName === 'archive') {
                 renderArchivedList();
             }
         }
 
-        // 工具函數
         function getFullSpotNumber(record) {
             const floorStr = record.floor === -1 ? 'B1' : record.floor;
             const spotStr = String(record.spotNumber).padStart(2, '0');
@@ -2614,14 +2548,14 @@
             return hints[Math.floor(Math.random() * hints.length)];
         }
 
-        // 儲存到本地
-        function saveToLocalStorage() {
+        // 修改後的儲存邏輯：增加 shouldSync 參數
+        function saveToLocalStorage(shouldSync = true) {
             try {
                 // 先存本地
                 localStorage.setItem('parkingRecords', JSON.stringify(records));
                 
-                // 自動存入雲端
-                if (GITHUB_TOKEN) {
+                // 如果需要，則同步雲端
+                if (shouldSync && GITHUB_TOKEN) {
                     uploadToCloud();
                 }
             } catch (error) {
@@ -2630,7 +2564,6 @@
             }
         }
 
-        // 顯示提示
         function showToast(message) {
             const toast = document.getElementById('toast');
             toast.textContent = message;
@@ -2640,7 +2573,6 @@
             }, 2000);
         }
 
-        // 顯示錯誤
         function showError(message) {
             console.error('錯誤:', message);
             const errorDiv = document.getElementById('errorMessage');
@@ -2651,9 +2583,10 @@
             }, 3000);
         }
 
-        // 點擊模態框外部關閉
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
+                // 如果是衝突模態框，點擊背景不允許關閉 (強制選擇)
+                if (event.target.id === 'syncConflictModal') return;
                 event.target.style.display = 'none';
             }
         }
